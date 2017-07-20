@@ -32,6 +32,7 @@ describe('Configuration', function () {
 
         expected = {
             debug: false,
+            promise: true,
             types: {ok: 'success', ko: 'error', warn: 'warning'},
             get: {ok: '.GET.OK', ko: '.GET.KO', warn: '.GET.WARN'},
             ok: {status: 200, suffix: '.OK'},
@@ -52,6 +53,7 @@ describe('Configuration', function () {
 
         expected = {
             debug: true,
+            promise: true,
             types: {ok: 'success', ko: 'error', warn: 'warning'},
             get: {ok: '.GET.OK', ko: '.GET.KO', warn: '.GET.WARN'},
             ok: {status: 318, suffix: 'TEAPOT'},

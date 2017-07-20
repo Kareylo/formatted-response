@@ -1,5 +1,5 @@
 const formattedResponse = require('../response');
-let Response = new formattedResponse();
+let Response = new formattedResponse({promise: false});
 let assert = require('assert');
 
 describe('Response Object', function () {

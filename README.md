@@ -10,7 +10,7 @@ It's developed to work whith or without promise.
 
 ## Configuration
 
-The default configuration of Formatted Response will return you a status code, a type and data
+The default configuration of Formatted Response will return you a status code, a type and data in a promise
 All you can modify is located in the [Default Configuration File](config/index.js)
 
 Here a complete example :
@@ -19,6 +19,7 @@ Here a complete example :
 const formattedResponse = require('formatted-response');
 let Response = new formattedResponse({
     debug: true,
+    promise: false,
     types: {
          ok: 'alert-success',
          ko: 'alert-danger',
@@ -77,3 +78,6 @@ Response.warning('MY.DATA', new Error('My Error !'));
 // return {status: 200, message: 'MY.DATA', type: 'my-type', data: {myDate: "My data !"}}
 Response.response('MY.DATA', {myDate: "My data !"}, 'my-type', 200);
 ```
+
+# TODO
+- Tests with promises

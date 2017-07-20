@@ -1,5 +1,6 @@
 const formattedResponse = require('../response');
 let _config = {
+    promise: false,
     types: {
         ok: 'alert-success',
         ko: 'alert-danger',

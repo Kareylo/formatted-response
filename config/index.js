@@ -2,6 +2,7 @@
 
 module.exports = {
     debug: false,
+    promise: true,
     types: {
         ok: 'success',
         ko: 'error',

@@ -94,7 +94,7 @@ Response.prototype = {
      * @param promise
      * @return {*}
      */
-    response: function (message, data, type, status, promise) {
+    response: function (message, data, type, status, promise = this.config.promise) {
         let obj = {
             status: status,
             message: message
@@ -121,7 +121,7 @@ Response.prototype = {
      * @param promise
      * @return {*}
      */
-    get: function (message, data, promise) {
+    get: function (message, data, promise = this.config.promise) {
         return this.response(message + this.config.get.ok, data, false, this.config.ok.status, promise);
     },
 
@@ -132,7 +132,7 @@ Response.prototype = {
      * @param promise
      * @return {*}
      */
-    success: function (message, data, promise) {
+    success: function (message, data, promise = this.config.promise) {
         return this.response(message + this.config.ok.suffix, data, this.config.types.ok, this.config.ok.status, promise);
     },
 
@@ -143,7 +143,7 @@ Response.prototype = {
      * @param promise
      * @return {*}
      */
-    error: function (message, error, promise) {
+    error: function (message, error, promise = this.config.promise) {
         return this.response(message + this.config.ko.suffix, this._parseErrors(error), this.config.types.ko, this.config.ko.status, promise);
     },
 
@@ -154,7 +154,7 @@ Response.prototype = {
      * @param promise
      * @return {*}
      */
-    warning: function (message, error, promise) {
+    warning: function (message, error, promise = this.config.promise) {
         return this.response(message + this.config.warn.suffix, this._parseErrors(error), this.config.types.warn, this.config.warn.status, promise);
     },
 
