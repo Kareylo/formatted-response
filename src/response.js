@@ -13,7 +13,6 @@ function Response(config) {
         return new Response(config);
     }
 
-    this.init = true;
     this.config = {};
     this.ObjDeepMerge(this.config, _config, config);
 
@@ -54,7 +53,7 @@ Response.prototype = {
 
         if (this._isObject(target) && this._isObject(source)) {
             for (let key in source) {
-                if (!this.init && this._isDate(source, key)) {
+                if (this.config.dateFields && this._isDate(source, key)) {
                     source[key] = source[key].toISOString() || source[key];
                 }
                 if (this._isObject(source[key])) {
@@ -66,9 +65,6 @@ Response.prototype = {
             }
         }
 
-        if (Response.init) {
-            Response.init = false;
-        }
         return this.ObjDeepMerge(target, ...sources);
     },
 

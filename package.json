@@ -1,12 +1,12 @@
 {
   "name": "formatted-response",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Create formatted responses",
   "main": "response.js",
   "scripts": {
     "test": "mocha"
   },
-  "keywords": [
+  "keywords": [ 
     "response",
     "formatted",
     "formatted-response",
