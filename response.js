@@ -5,4 +5,4 @@
  * http://github.com/kareylo/npm-formated-response
  *
  */
-module.exports = require('./src/response');
+module.exports = require('./src/response')

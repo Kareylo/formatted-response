@@ -1,12 +1,12 @@
 {
   "name": "formatted-response",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "description": "Create formatted responses",
   "main": "response.js",
   "scripts": {
     "test": "mocha"
   },
-  "keywords": [ 
+  "keywords": [
     "response",
     "formatted",
     "formatted-response",
@@ -24,19 +24,24 @@
     "url": "git://github.com/kareylo/formatted-response.git"
   },
   "dependencies": {
-    "babel-runtime": "^6.23.0",
+    "babel-runtime": "^6.26.0",
     "bluebird": "^3.5.0",
-    "deepmerge": "^1.4.4"
+    "deepmerge": "^1.5.1"
   },
   "devDependencies": {
-    "babel-cli": "^6.24.1",
+    "babel-cli": "^6.26.0",
     "babel-eslint": "^7.2.3",
     "babel-plugin-syntax-object-rest-spread": "^6.13.0",
-    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-plugin-transform-object-rest-spread": "^6.26.0",
     "babel-plugin-transform-runtime": "^6.23.0",
     "babel-preset-es2015": "^6.24.1",
-    "eslint": "^4.1.1",
-    "jsdoc": "^3.4.3",
+    "eslint": "^4.5.0",
+    "eslint-config-standard": "^10.2.1",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-node": "^5.1.1",
+    "eslint-plugin-promise": "^3.5.0",
+    "eslint-plugin-standard": "^3.0.1",
+    "jsdoc": "^3.5.4",
     "mocha": "^3.4.2"
   },
   "buildDependencies": [
