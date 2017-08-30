@@ -6,7 +6,8 @@ module.exports = {
   types: {
     ok: 'success',
     ko: 'error',
-    warn: 'warning'
+    warn: 'warning',
+    notFound: 'error'
   },
   get: {
     ok: '.GET.OK',
@@ -24,6 +25,10 @@ module.exports = {
   warn: {
     status: 403,
     suffix: '.WARN'
+  },
+  notFound: {
+    status: 404,
+    suffix: '.ERROR'
   },
   auth: {
     error: {

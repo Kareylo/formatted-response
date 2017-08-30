@@ -5,7 +5,8 @@ const _config = {
   types: {
     ok: 'alert-success',
     ko: 'alert-danger',
-    warn: 'alert-warning'
+    warn: 'alert-warning',
+    notFound: 'alert-notFound'
   },
   dateFields: ['created', 'updated']
 }
@@ -115,6 +116,22 @@ describe('Configured Response Object', function () {
       Response = new FormattedResponse(_config)
       const expected = Response.response('WITHOUT.DATA.WARN', undefined, Response.config.types.warn, 403)
       assert.deepEqual(Response.warning('WITHOUT.DATA', new Error('Test error')), expected)
+    })
+  })
+
+  describe('#notFound method', function () {
+    it(`with debug: true`, function () {
+      _config.debug = true
+      Response = new FormattedResponse(_config)
+      const expected = Response.response('WITH.DATA.ERROR', {error: 'Test error'}, Response.config.types.notFound, 404)
+      assert.deepEqual(Response.notFound('WITH.DATA', new Error('Test error')), expected)
+    })
+
+    it(`with debug: false`, function () {
+      delete _config.debug
+      Response = new FormattedResponse(_config)
+      const expected = Response.response('WITHOUT.DATA.ERROR', undefined, Response.config.types.notFound, 404)
+      assert.deepEqual(Response.notFound('WITHOUT.DATA', new Error('Test error')), expected)
     })
   })
 })

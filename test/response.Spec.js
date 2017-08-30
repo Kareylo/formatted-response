@@ -104,4 +104,18 @@ describe('Response Object', function () {
       assert.deepEqual(Response.warning('WITHOUT.DATA', new Error('Test error')), expected)
     })
   })
+
+  describe('#notFound method', function () {
+    it(`with debug: true`, function () {
+      Response = new FormattedResponse({debug: true})
+      const expected = Response.response('WITH.DATA.ERROR', {error: 'Test error'}, Response.config.types.notFound, 404)
+      assert.deepEqual(Response.notFound('WITH.DATA', new Error('Test error')), expected)
+    })
+
+    it(`with debug: false`, function () {
+      Response = new FormattedResponse()
+      const expected = Response.response('WITHOUT.DATA.ERROR', undefined, Response.config.types.notFound, 404)
+      assert.deepEqual(Response.notFound('WITHOUT.DATA', new Error('Test error')), expected)
+    })
+  })
 })

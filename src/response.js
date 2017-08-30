@@ -153,6 +153,17 @@ Response.prototype = {
     return this.response(message + this.config.warn.suffix, this._parseErrors(error), this.config.types.warn, this.config.warn.status, promise)
   },
 
+  /**
+   * Generate warning response
+   * @param message
+   * @param error
+   * @param promise
+   * @return {*}
+   */
+  notFound: function (message, error, promise = this.config.promise) {
+    return this.response(message + this.config.notFound.suffix, this._parseErrors(error), this.config.types.notFound, this.config.notFound.status, promise)
+  },
+
   _parseErrors: function (error) {
     const errors = {}
     if (error) {

@@ -23,7 +23,8 @@ let Response = new formattedResponse({
     types: {
          ok: 'alert-success',
          ko: 'alert-danger',
-         warn: 'alert-warning'
+         warn: 'alert-warning',
+         notFound: 'alert-notFound'
     },
     get: {
          ok: '.GET.SUCCESS',
@@ -41,6 +42,10 @@ let Response = new formattedResponse({
     warn: {
          status: 403,
          suffix: '.WARNING'
+    },
+    notFound: {
+         status: 404,
+         suffix: '.ERROR'
     },
     auth: {
          error: {
@@ -74,6 +79,9 @@ Response.error('MY.DATA', new Error('My Error !'));
 
 // return {status: 403, message: 'MY.DATA.WARN', type: 'warning', error: "My Error !"}
 Response.warning('MY.DATA', new Error('My Error !'));
+
+// return {status: 404, message: 'MY.DATA.WARN', type: 'error', error: "My Error !"}
+Response.notFound('MY.DATA', new Error('My Error !'));
 
 // return {status: 200, message: 'MY.DATA', type: 'my-type', data: {myDate: "My data !"}}
 Response.response('MY.DATA', {myDate: "My data !"}, 'my-type', 200);

@@ -33,11 +33,12 @@ describe('Configuration', function () {
     expected = {
       debug: false,
       promise: true,
-      types: {ok: 'success', ko: 'error', warn: 'warning'},
+      types: {ok: 'success', ko: 'error', warn: 'warning', notFound: 'error'},
       get: {ok: '.GET.OK', ko: '.GET.KO', warn: '.GET.WARN'},
       ok: {status: 200, suffix: '.OK'},
       ko: {status: 400, suffix: '.KO'},
       warn: {status: 403, suffix: '.WARN'},
+      notFound: {status: 404, suffix: '.ERROR'},
       auth: {error: {status: 401, suffix: '.KO'}, success: {status: 200, suffix: '.OK'}},
       dateFields: ['created', 'locked']
     }
@@ -54,11 +55,12 @@ describe('Configuration', function () {
     expected = {
       debug: true,
       promise: true,
-      types: {ok: 'success', ko: 'error', warn: 'warning'},
+      types: {ok: 'success', ko: 'error', warn: 'warning', notFound: 'error'},
       get: {ok: '.GET.OK', ko: '.GET.KO', warn: '.GET.WARN'},
       ok: {status: 318, suffix: 'TEAPOT'},
       ko: {status: 400, suffix: '.KO'},
       warn: {status: 403, suffix: '.WARN'},
+      notFound: {status: 404, suffix: '.ERROR'},
       auth: {error: {status: 401, suffix: '.KO'}, success: {status: 200, suffix: '.OK'}},
       dateFields: ['created', 'locked']
     }

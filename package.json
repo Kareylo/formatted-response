@@ -1,6 +1,6 @@
 {
   "name": "formatted-response",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Create formatted responses",
   "main": "response.js",
   "scripts": {
@@ -42,7 +42,7 @@
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
     "jsdoc": "^3.5.4",
-    "mocha": "^3.4.2"
+    "mocha": "^3.5.0"
   },
   "buildDependencies": [
     "babel-cli",
