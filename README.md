@@ -88,4 +88,4 @@ Response.response('MY.DATA', {myDate: "My data !"}, 'my-type', 200);
 ```
 
 # TODO
-- Tests with promises
+- Adding more methods

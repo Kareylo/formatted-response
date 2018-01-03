@@ -63,20 +63,6 @@ describe('Response Object', function () {
     })
   })
 
-  describe('#get method', function () {
-    it(`with 'data' index`, function () {
-      const expected = Response.response('WITH.DATA.GET.OK', {data: {text: 'test'}}, undefined, 200)
-      assert.deepEqual(Response.get('WITH.DATA', {text: 'test'}), expected)
-
-      assert.deepEqual(Response.get('WITH.DATA', {data: {text: 'test'}}), expected)
-    })
-
-    it(`without 'data' index`, function () {
-      const expected = Response.response('WITHOUT.DATA.GET.OK', undefined, undefined, 200)
-      assert.deepEqual(Response.get('WITHOUT.DATA', undefined), expected)
-    })
-  })
-
   describe('#error method', function () {
     it(`with debug: true`, function () {
       Response = new FormattedResponse({debug: true})

@@ -75,9 +75,7 @@ Response.prototype = {
    * @private
    */
   _promise: function (obj) {
-    const d = Promise.defer()
-    d.resolve(obj)
-    return d.promise
+    return Promise.resolve(obj)
   },
 
   /**
@@ -106,7 +104,7 @@ Response.prototype = {
       obj = this.ObjDeepMerge(obj, data)
     }
 
-    return promise ? this._promise(obj) : obj
+    return promise ? Promise.resolve(obj) : obj
   },
 
   /**
