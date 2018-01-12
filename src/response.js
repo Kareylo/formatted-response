@@ -1,7 +1,8 @@
 'use strict'
 
 const _config = require('../config')
-const Promise = require('bluebird')
+
+// const Promise = require('bluebird')
 
 /**
  * Response Object
@@ -75,7 +76,14 @@ Response.prototype = {
    * @private
    */
   _promise: function (obj) {
-    return Promise.resolve(obj)
+    return new Promise((resolve, reject) => {
+      try {
+        resolve(obj)
+      } catch (e) {
+        reject(e)
+      }
+    })
+    // return Promise.resolve(obj)
   },
 
   /**

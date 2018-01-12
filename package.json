@@ -1,6 +1,6 @@
 {
   "name": "formatted-response",
-  "version": "1.0.6",
+  "version": "1.0.7",
   "description": "Create formatted responses",
   "main": "response.js",
   "scripts": {
@@ -23,19 +23,13 @@
     "type": "git",
     "url": "git://github.com/kareylo/formatted-response.git"
   },
-  "dependencies": {
-    "babel-runtime": "^6.26.0",
-    "bluebird": "^3.5.0",
-    "deepmerge": "^1.5.1"
-  },
   "devDependencies": {
-    "eslint": "^4.5.0",
-    "eslint-config-standard": "^10.2.1",
+    "eslint": "^4.15.0",
+    "eslint-config-standard": "^11.0.0-beta.0",
     "eslint-plugin-import": "^2.7.0",
     "eslint-plugin-node": "^5.1.1",
     "eslint-plugin-promise": "^3.5.0",
     "eslint-plugin-standard": "^3.0.1",
-    "jsdoc": "^3.5.4",
-    "mocha": "^3.5.0"
+    "mocha": "^4.1.0"
   }
 }
