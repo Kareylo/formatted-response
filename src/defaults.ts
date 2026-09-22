@@ -1,6 +1,6 @@
-'use strict'
+import type { FormattedResponseConfig } from './types.js'
 
-module.exports = {
+export const DEFAULT_CONFIG: FormattedResponseConfig = {
   debug: false,
   promise: true,
   types: {

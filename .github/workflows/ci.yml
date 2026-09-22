@@ -1,0 +1,154 @@
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  yarn:
+    name: Yarn lockfile check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: yarn
+
+      # Fails if yarn.lock doesn't exactly match package.json — the anti-drift
+      # guard. package-lock.json / npm ci remain the source of truth for the
+      # quality/test/compat jobs below; this job only proves the yarn-resolved
+      # tree also installs and works.
+      - run: yarn install --frozen-lockfile
+
+      - run: yarn build
+
+      - run: yarn test
+
+  quality:
+    name: Lint, typecheck & build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+
+      - run: npm ci
+
+      - name: Lint
+        run: npm run lint
+
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build
+        run: npm run build
+
+      - name: Validate published package shape
+        run: npm run check:package
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: dist
+          path: dist
+          retention-days: 1
+          if-no-files-found: error
+
+  test:
+    name: Unit tests (Node ${{ matrix.node }})
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      # tsdown requires Node >= 22.18; it is never invoked in this job, so the
+      # EBADENGINE warning on the Node 20 leg is expected and non-fatal.
+      - run: npm ci
+
+      - name: Unit tests
+        run: npm run test
+
+      - name: Type-level tests
+        if: matrix.node == 24
+        run: npm run test:types
+
+      - name: Coverage
+        if: matrix.node == 24
+        run: npm run test:coverage
+
+  compat:
+    name: Built output (Node ${{ matrix.node }})
+    needs: quality
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        node: [20, 22, 24]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+
+      - run: npm ci
+
+      - uses: actions/download-artifact@v4
+        with:
+          name: dist
+          path: dist
+
+      - name: ESM + CJS smoke tests against dist/
+        run: npm run test:dist
+
+      - name: End-to-end install of the real tarball
+        run: |
+          set -euo pipefail
+          # --ignore-scripts: this job already downloaded a real dist/ built by the
+          # `quality` job on Node 24. Without this flag, `npm pack` re-triggers the
+          # `prepack` script (`npm run build`) unconditionally, silently rebuilding
+          # with whichever Node this matrix leg is on — and tsdown requires Node
+          # >=22.18, so the Node 20 leg crashed here instead of testing the real
+          # downloaded artifact.
+          npm pack --ignore-scripts --pack-destination /tmp
+          TARBALL="$(ls /tmp/formatted-response-*.tgz)"
+          mkdir -p /tmp/consumer && cd /tmp/consumer
+          npm init -y > /dev/null
+          npm install --no-audit --no-fund "$TARBALL"
+          node -e "
+            const FR = require('formatted-response');
+            if (typeof FR !== 'function') throw new Error('CJS require() did not return the constructor');
+            const r = new FR({ promise: false }).success('E2E');
+            console.log(JSON.stringify(r));
+            if (r.message !== 'E2E.OK') throw new Error('unexpected payload');
+          "
+          node --input-type=module -e "
+            import FR from 'formatted-response';
+            if (typeof FR !== 'function') throw new Error('ESM default import is not the constructor');
+            console.log(JSON.stringify(new FR({ promise: false }).get('E2E')));
+          "
+          test ! -d node_modules/formatted-response/node_modules || { echo 'devDependencies leaked into the tarball'; exit 1; }
+          test ! -d node_modules/formatted-response/test || { echo 'tests leaked into the tarball'; exit 1; }
+          test ! -d node_modules/formatted-response/src || { echo 'sources leaked into the tarball'; exit 1; }
