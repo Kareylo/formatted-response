@@ -1,0 +1,43 @@
+{
+  "compilerOptions": {
+    "target": "ES2023",
+    "lib": ["ES2023"],
+    "module": "Preserve",
+    "moduleResolution": "Bundler",
+    "moduleDetection": "force",
+    "types": ["node"],
+
+    "strict": true,
+    "noUncheckedIndexedAccess": true,
+    "noImplicitOverride": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "useUnknownInCatchVariables": true,
+
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
+    "erasableSyntaxOnly": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+
+    "declaration": true,
+    "declarationMap": true,
+    "sourceMap": true,
+    "noEmit": true,
+    "outDir": "dist"
+  },
+  "include": [
+    "src",
+    "test",
+    "eslint.config.js",
+    "tsdown.config.ts",
+    "vitest.config.ts",
+    "vitest.dist.config.ts"
+  ],
+  "exclude": [
+    "test/dist"
+  ]
+}
