@@ -126,7 +126,13 @@ jobs:
       - name: End-to-end install of the real tarball
         run: |
           set -euo pipefail
-          npm pack --pack-destination /tmp
+          # --ignore-scripts: this job already downloaded a real dist/ built by the
+          # `quality` job on Node 24. Without this flag, `npm pack` re-triggers the
+          # `prepack` script (`npm run build`) unconditionally, silently rebuilding
+          # with whichever Node this matrix leg is on — and tsdown requires Node
+          # >=22.18, so the Node 20 leg crashed here instead of testing the real
+          # downloaded artifact.
+          npm pack --ignore-scripts --pack-destination /tmp
           TARBALL="$(ls /tmp/formatted-response-*.tgz)"
           mkdir -p /tmp/consumer && cd /tmp/consumer
           npm init -y > /dev/null
