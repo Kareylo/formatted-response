@@ -70,6 +70,14 @@ jobs:
       - name: Smoke-test the built output
         run: npm run test:dist
 
+      # Everything past this point can no longer use `npm run <script>` — that's
+      # the point. Consumers of the published package never install devDependencies
+      # anyway (npm only installs a dependency's own `dependencies`, never its
+      # `devDependencies`), but stripping both keeps the shipped package.json free
+      # of internal tooling versions and test scripts.
+      - name: Strip scripts and devDependencies from the published package.json
+        run: npm pkg delete scripts devDependencies
+
       - name: Inspect exactly what will be published
         run: npm pack --dry-run
 
