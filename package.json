@@ -16,13 +16,13 @@
   "author": {
     "name": "Corentin Nazé"
   },
-  "homepage": "https://github.com/kareylo/formatted-response#readme",
+  "homepage": "https://github.com/Kareylo/formatted-response#readme",
   "bugs": {
-    "url": "https://github.com/kareylo/formatted-response/issues"
+    "url": "https://github.com/Kareylo/formatted-response/issues"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/kareylo/formatted-response.git"
+    "url": "git+https://github.com/Kareylo/formatted-response.git"
   },
   "type": "module",
   "sideEffects": false,

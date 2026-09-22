@@ -180,7 +180,7 @@ Everything else — the method signatures, the default config values, the messag
 
 ## Contributing
 
-Issues and PRs welcome at [github.com/kareylo/formatted-response](https://github.com/kareylo/formatted-response).
+Issues and PRs welcome at [github.com/Kareylo/formatted-response](https://github.com/Kareylo/formatted-response).
 
 ```bash
 npm install   # or: yarn install
