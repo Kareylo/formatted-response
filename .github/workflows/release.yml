@@ -4,6 +4,8 @@ on:
   push:
     tags:
       - 'v*.*.*'
+  release:
+    types: [published]
   workflow_dispatch:
 
 permissions:
@@ -40,34 +42,49 @@ jobs:
             exit 1
           fi
 
-      - name: Refuse to republish an existing version
+      # Publishing a GitHub Release against a brand-new tag fires BOTH the `push`
+      # tags trigger and this `release` trigger for the same version. Rather than
+      # hard-failing the second run (a confusing red ❌ for a release that in fact
+      # published fine), detect it here and skip every remaining step — the job
+      # still ends green, just short-circuited.
+      - name: Check whether this version is already published
+        id: check-published
         run: |
           set -euo pipefail
           PKG="$(node -p "require('./package.json').version")"
           if npm view "formatted-response@$PKG" version > /dev/null 2>&1; then
-            echo "::error::formatted-response@$PKG is already published"
-            exit 1
+            echo "already_published=true" >> "$GITHUB_OUTPUT"
+            echo "::notice::formatted-response@$PKG is already published — skipping the rest of this run (likely the other of the push-tag/GitHub-Release trigger pair)."
+          else
+            echo "already_published=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Lint
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run lint
 
       - name: Typecheck
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run typecheck
 
       - name: Full test suite
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run test
 
       - name: Type-level tests
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run test:types
 
       - name: Build
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run build
 
       - name: Validate published package shape
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run check:package
 
       - name: Smoke-test the built output
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm run test:dist
 
       # Everything past this point can no longer use `npm run <script>` — that's
@@ -76,12 +93,15 @@ jobs:
       # `devDependencies`), but stripping both keeps the shipped package.json free
       # of internal tooling versions and test scripts.
       - name: Strip scripts and devDependencies from the published package.json
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm pkg delete scripts devDependencies
 
       - name: Inspect exactly what will be published
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm pack --dry-run
 
       - name: Publish
+        if: steps.check-published.outputs.already_published != 'true'
         run: npm publish --provenance --access public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
