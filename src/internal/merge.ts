@@ -27,6 +27,8 @@ export function deepMerge<T extends Record<string, unknown>> (
   if (!isPlainObject(target) || !isPlainObject(source)) return target
 
   for (const key of Object.keys(source)) {
+    if (key === '__proto__' || key === 'constructor' || key === 'prototype') continue
+
     const value = source[key]
 
     if (value instanceof Date && dateFields.includes(key)) {
