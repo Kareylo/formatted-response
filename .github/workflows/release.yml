@@ -32,9 +32,16 @@ jobs:
 
       - run: npm ci
 
+      # A manual dispatch defaults to the default branch, where GITHUB_REF_NAME
+      # is `master`, not a version — run it from a tag ("Use workflow from" →
+      # Tags) to re-publish that version.
       - name: Tag must match package.json version
         run: |
           set -euo pipefail
+          if [ "$GITHUB_REF_TYPE" != "tag" ]; then
+            echo "::error::Release must run from a tag, not $GITHUB_REF_TYPE '$GITHUB_REF_NAME'. For a manual run, pick the tag under \"Use workflow from\" → Tags."
+            exit 1
+          fi
           TAG="${GITHUB_REF_NAME#v}"
           PKG="$(node -p "require('./package.json').version")"
           if [ "$TAG" != "$PKG" ]; then
