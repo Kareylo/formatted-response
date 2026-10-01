@@ -7,7 +7,7 @@ Create formatted, consistently-shaped JSON responses for your application — sy
 - Zero runtime dependencies
 - Fully typed — the `success`/`error`/`warning`/... methods infer whether they return a value or a `Promise` of one, from your config
 - Works with `require()`, `import`, and TypeScript out of the box
-- Node.js ≥ 20.19
+- Node.js ≥ 22
 
 ## Installation
 
@@ -180,6 +180,12 @@ import type {
   Resolved                   // the sync/promise resolution helper
 } from 'formatted-response/types'
 ```
+
+## Migration from 2.x
+
+**Breaking changes in 3.0.0:**
+
+1. **Node ≥ 22 is required.** Node 20 reached end-of-life in April 2026.
 
 ## Migration from 1.x
 

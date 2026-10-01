@@ -10,7 +10,7 @@ export default defineConfig({
   },
   format: ['esm', 'cjs'],
   platform: 'neutral',
-  target: 'node20.19',
+  target: 'node22',
   outDir: 'dist',
   dts: true,
   clean: true,
