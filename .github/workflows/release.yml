@@ -1,9 +1,10 @@
 name: Release
 
+# Only the `release` trigger: creating a GitHub Release with a new tag also
+# fires `push: tags` in the same second, and two parallel runs race to
+# `npm publish` — the loser fails with E409 since the registry is too slow
+# to report the version for the guard below to catch it.
 on:
-  push:
-    tags:
-      - 'v*.*.*'
   release:
     types: [published]
   workflow_dispatch:
@@ -49,11 +50,9 @@ jobs:
             exit 1
           fi
 
-      # Publishing a GitHub Release against a brand-new tag fires BOTH the `push`
-      # tags trigger and this `release` trigger for the same version. Rather than
-      # hard-failing the second run (a confusing red ❌ for a release that in fact
-      # published fine), detect it here and skip every remaining step — the job
-      # still ends green, just short-circuited.
+      # Re-running the workflow (or a manual dispatch) for a version that is
+      # already on npm would hard-fail at `npm publish`. Detect it here and skip
+      # every remaining step — the job still ends green, just short-circuited.
       - name: Check whether this version is already published
         id: check-published
         run: |
@@ -61,7 +60,7 @@ jobs:
           PKG="$(node -p "require('./package.json').version")"
           if npm view "formatted-response@$PKG" version > /dev/null 2>&1; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::formatted-response@$PKG is already published — skipping the rest of this run (likely the other of the push-tag/GitHub-Release trigger pair)."
+            echo "::notice::formatted-response@$PKG is already published — skipping the rest of this run (likely a re-run)."
           else
             echo "already_published=false" >> "$GITHUB_OUTPUT"
           fi
