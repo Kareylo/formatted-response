@@ -11,28 +11,31 @@ on:
 
 permissions:
   contents: read
-  id-token: write
 
 concurrency:
   group: release-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
-  publish:
-    name: Publish to npm
+  # Runs every third-party tool (eslint, vitest, tsdown, …) WITHOUT the OIDC
+  # permission, and hands only the finished tarball to the publish job. A
+  # compromised devDependency can therefore never mint a publish credential.
+  build:
+    name: Build & verify
     runs-on: ubuntu-latest
-    environment: npm-publish
+    outputs:
+      already_published: ${{ steps.check-published.outputs.already_published }}
     steps:
       - uses: actions/checkout@v7
+        with:
+          persist-credentials: false
 
+      # No `cache: npm`: the release must not restore a cache written by
+      # other workflow runs.
       - uses: actions/setup-node@v7
         with:
           node-version: 24
-          cache: npm
-          registry-url: https://registry.npmjs.org
 
-      # No lifecycle scripts: this job can mint the OIDC publish credential, so
-      # no dependency's install script may run here.
       - run: npm ci --ignore-scripts
 
       # A manual dispatch defaults to the default branch, where GITHUB_REF_NAME
@@ -54,7 +57,7 @@ jobs:
 
       # Re-running the workflow (or a manual dispatch) for a version that is
       # already on npm would hard-fail at `npm publish`. Detect it here and skip
-      # every remaining step — the job still ends green, just short-circuited.
+      # the publish job — the run still ends green.
       - name: Check whether this version is already published
         id: check-published
         run: |
@@ -62,37 +65,30 @@ jobs:
           PKG="$(node -p "require('./package.json').version")"
           if npm view "formatted-response@$PKG" version > /dev/null 2>&1; then
             echo "already_published=true" >> "$GITHUB_OUTPUT"
-            echo "::notice::formatted-response@$PKG is already published — skipping the rest of this run (likely a re-run)."
+            echo "::notice::formatted-response@$PKG is already published — the publish job will be skipped (likely a re-run)."
           else
             echo "already_published=false" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Lint
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run lint
 
       - name: Typecheck
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run typecheck
 
       - name: Full test suite
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run test
 
       - name: Type-level tests
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run test:types
 
       - name: Build
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run build
 
       - name: Validate published package shape
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run check:package
 
       - name: Smoke-test the built output
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm run test:dist
 
       # Everything past this point can no longer use `npm run <script>` — that's
@@ -101,16 +97,41 @@ jobs:
       # `devDependencies`), but stripping both keeps the shipped package.json free
       # of internal tooling versions and test scripts.
       - name: Strip scripts and devDependencies from the published package.json
-        if: steps.check-published.outputs.already_published != 'true'
         run: npm pkg delete scripts devDependencies
 
-      - name: Inspect exactly what will be published
-        if: steps.check-published.outputs.already_published != 'true'
-        run: npm pack --dry-run
+      # Lists every file in the tarball in the log, then writes it to disk.
+      - name: Pack the exact tarball to publish
+        run: npm pack
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: package
+          path: formatted-response-*.tgz
+          retention-days: 1
+          if-no-files-found: error
+
+  publish:
+    name: Publish to npm
+    needs: build
+    if: needs.build.outputs.already_published != 'true'
+    runs-on: ubuntu-latest
+    environment: npm-publish
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: 24
+          registry-url: https://registry.npmjs.org
+
+      - uses: actions/download-artifact@v8
+        with:
+          name: package
 
       # Trusted publishing: npm exchanges this job's OIDC token (`id-token: write`)
       # for a short-lived publish credential. No NPM_TOKEN secret. The trusted
       # publisher on npmjs.com must match repo, `release.yml` and `npm-publish`.
+      # No checkout and no `npm ci`: nothing but npm itself runs in this job.
       - name: Publish
-        if: steps.check-published.outputs.already_published != 'true'
-        run: npm publish --provenance --access public
+        run: npm publish ./formatted-response-*.tgz --provenance --access public
