@@ -31,7 +31,9 @@ jobs:
           cache: npm
           registry-url: https://registry.npmjs.org
 
-      - run: npm ci
+      # No lifecycle scripts: this job can mint the OIDC publish credential, so
+      # no dependency's install script may run here.
+      - run: npm ci --ignore-scripts
 
       # A manual dispatch defaults to the default branch, where GITHUB_REF_NAME
       # is `master`, not a version — run it from a tag ("Use workflow from" →
@@ -106,8 +108,9 @@ jobs:
         if: steps.check-published.outputs.already_published != 'true'
         run: npm pack --dry-run
 
+      # Trusted publishing: npm exchanges this job's OIDC token (`id-token: write`)
+      # for a short-lived publish credential. No NPM_TOKEN secret. The trusted
+      # publisher on npmjs.com must match repo, `release.yml` and `npm-publish`.
       - name: Publish
         if: steps.check-published.outputs.already_published != 'true'
         run: npm publish --provenance --access public
-        env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
