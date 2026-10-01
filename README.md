@@ -109,6 +109,23 @@ response.response('MY.DATA', { myData: 'My data!' }, 'my-type', 200)
 // => { status: 200, message: 'MY.DATA', type: 'my-type', data: { myData: 'My data!' } }
 ```
 
+> [!WARNING]
+> `debug: false` hides the error's `message`, but **not** its `errors` property. If the error you pass has one, it is always copied into the response, as `data.errors` (or top-level `errors` when `debug: true`):
+>
+> ```ts
+> const err = Object.assign(new Error('Validation failed'), {
+>   errors: [{ path: 'email', value: 'a@b.c' }]
+> })
+> response.error('USER.CREATE', err)
+> // => { status: 400, message: 'USER.CREATE.KO', type: 'error', data: { errors: [{ path: 'email', value: 'a@b.c' }] } }
+> ```
+>
+> ORM and validation libraries (Sequelize, Mongoose, …) put internal details there, such as rejected values, model and column names. Don't pass their errors directly to a response sent to clients. Map them first to what the client should see:
+>
+> ```ts
+> response.error('USER.CREATE', { errors: err.errors.map(e => ({ field: e.path })) })
+> ```
+
 `data` is nested under a `data` key automatically, unless it already has a `data` or `error` key of its own, in which case it's spread at the top level:
 
 ```ts
