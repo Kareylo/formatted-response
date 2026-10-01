@@ -88,4 +88,25 @@ describe('v1 regressions', () => {
     expect(deepMerge(target, [1, 2, 3])).toBe(target)
     expect(target).toEqual({ a: 1 })
   })
+
+  it('deepMerge does not pollute Object.prototype via a __proto__ key', () => {
+    const malicious = JSON.parse('{"__proto__":{"polluted":true}}') as Record<string, unknown>
+    deepMerge({}, malicious)
+    expect(({} as Record<string, unknown>).polluted).toBeUndefined()
+    expect(Object.prototype).not.toHaveProperty('polluted')
+  })
+
+  it('deepMerge does not pollute via constructor/prototype keys', () => {
+    const malicious = JSON.parse('{"constructor":{"prototype":{"polluted2":true}}}') as Record<string, unknown>
+    deepMerge({}, malicious)
+    expect(({} as Record<string, unknown>).polluted2).toBeUndefined()
+    expect(Object.prototype).not.toHaveProperty('polluted2')
+  })
+
+  it('a client-supplied __proto__ in the data payload cannot pollute Object.prototype', () => {
+    const R = new FormattedResponse({ promise: false })
+    const evilData = JSON.parse('{"__proto__":{"isAdmin":true}}') as Record<string, unknown>
+    R.success('M', evilData)
+    expect(({} as Record<string, unknown>).isAdmin).toBeUndefined()
+  })
 })
