@@ -1,0 +1,15 @@
+version: 2
+updates:
+  # Actions only: npm deps live in two lockfiles (package-lock.json + yarn.lock,
+  # guarded by the CI "Yarn lockfile check" job), which a single Dependabot
+  # ecosystem entry can't keep in sync.
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    groups:
+      actions:
+        patterns:
+          - '*'
+    commit-message:
+      prefix: ci
