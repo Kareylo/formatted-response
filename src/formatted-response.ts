@@ -73,7 +73,7 @@ export class FormattedResponse<P extends boolean = true> {
   error (message: string, error?: ErrorInput, promise?: boolean): unknown {
     const usePromise = promise ?? this.config.promise
     return this.response(
-      message + this.config.ko.suffix, parseErrors(error, this.config.debug), this.config.types.ko, this.config.ko.status, usePromise
+      message + this.config.ko.suffix, parseErrors(error, this.config.debug, this.config.exposeErrors), this.config.types.ko, this.config.ko.status, usePromise
     )
   }
 
@@ -82,7 +82,7 @@ export class FormattedResponse<P extends boolean = true> {
   warning (message: string, error?: ErrorInput, promise?: boolean): unknown {
     const usePromise = promise ?? this.config.promise
     return this.response(
-      message + this.config.warn.suffix, parseErrors(error, this.config.debug), this.config.types.warn, this.config.warn.status, usePromise
+      message + this.config.warn.suffix, parseErrors(error, this.config.debug, this.config.exposeErrors), this.config.types.warn, this.config.warn.status, usePromise
     )
   }
 
@@ -91,7 +91,7 @@ export class FormattedResponse<P extends boolean = true> {
   notFound (message: string, error?: ErrorInput, promise?: boolean): unknown {
     const usePromise = promise ?? this.config.promise
     return this.response(
-      message + this.config.notFound.suffix, parseErrors(error, this.config.debug), this.config.types.notFound, this.config.notFound.status, usePromise
+      message + this.config.notFound.suffix, parseErrors(error, this.config.debug, this.config.exposeErrors), this.config.types.notFound, this.config.notFound.status, usePromise
     )
   }
 }

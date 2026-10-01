@@ -5,6 +5,8 @@ export interface StatusConfig {
 
 export interface FormattedResponseConfig {
   debug: boolean
+  /** When `true`, an error's `errors` property is copied into the response even with `debug: false`. */
+  exposeErrors: boolean
   promise: boolean
   types: { ok: string, ko: string, warn: string, notFound: string }
   /** Only `get.ok` is read by the library. `ko`/`warn` are kept for config compatibility. */
@@ -60,7 +62,7 @@ export type DataPart<D>
 export interface ErrorResponse extends TypedResponse {
   /** present only when `config.debug` is true and the error has a `message` */
   error?: string
-  /** present when the error carries an `errors` property, regardless of `debug` */
+  /** present when the error carries an `errors` property and `debug` or `exposeErrors` is true */
   errors?: unknown
   /** the `debug: false` + `error.errors` path nests them here instead */
   data?: { errors?: unknown }

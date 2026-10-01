@@ -2,6 +2,7 @@ import type { FormattedResponseConfig } from './types.js'
 
 export const DEFAULT_CONFIG: FormattedResponseConfig = {
   debug: false,
+  exposeErrors: false,
   promise: true,
   types: {
     ok: 'success',

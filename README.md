@@ -109,18 +109,17 @@ response.response('MY.DATA', { myData: 'My data!' }, 'my-type', 200)
 // => { status: 200, message: 'MY.DATA', type: 'my-type', data: { myData: 'My data!' } }
 ```
 
+An error's `errors` property (validation details, for example) is **not** sent by default. ORM and validation libraries (Sequelize, Mongoose, …) put internal details there, such as rejected values, model and column names. Set `exposeErrors: true` to send it, as `data.errors` (or top-level `errors` when `debug: true`):
+
+```ts
+const response = new FormattedResponse({ promise: false, exposeErrors: true })
+
+response.error('USER.CREATE', { errors: [{ field: 'email' }] })
+// => { status: 400, message: 'USER.CREATE.KO', type: 'error', data: { errors: [{ field: 'email' }] } }
+```
+
 > [!WARNING]
-> `debug: false` hides the error's `message`, but **not** its `errors` property. If the error you pass has one, it is always copied into the response, as `data.errors` (or top-level `errors` when `debug: true`):
->
-> ```ts
-> const err = Object.assign(new Error('Validation failed'), {
->   errors: [{ path: 'email', value: 'a@b.c' }]
-> })
-> response.error('USER.CREATE', err)
-> // => { status: 400, message: 'USER.CREATE.KO', type: 'error', data: { errors: [{ path: 'email', value: 'a@b.c' }] } }
-> ```
->
-> ORM and validation libraries (Sequelize, Mongoose, …) put internal details there, such as rejected values, model and column names. Don't pass their errors directly to a response sent to clients. Map them first to what the client should see:
+> With `exposeErrors: true`, don't pass library errors directly. Map them first to what the client should see:
 >
 > ```ts
 > response.error('USER.CREATE', { errors: err.errors.map(e => ({ field: e.path })) })
@@ -156,6 +155,7 @@ const response = new FormattedResponse({
 | Key | Default | Meaning |
 |---|---|---|
 | `debug` | `false` | When `true`, `error`/`warning`/`notFound` include the underlying `Error`'s `message` under an `error` key |
+| `exposeErrors` | `false` | When `true`, `error`/`warning`/`notFound` include the error's `errors` property. Also included whenever `debug` is `true` |
 | `promise` | `true` | Default return mode for every method — synchronous value vs `Promise` |
 | `types.{ok,ko,warn,notFound}` | `success` / `error` / `warning` / `error` | The `type` field emitted by `success`/`error`/`warning`/`notFound` |
 | `get.ok` | `.GET.OK` | Suffix appended to `message` by `get()` |
@@ -186,6 +186,10 @@ import type {
 **Breaking changes in 3.0.0:**
 
 1. **Node ≥ 22 is required.** Node 20 reached end-of-life in April 2026.
+2. **An error's `errors` property is no longer sent by default.** In 2.x it was always copied into the response, even with `debug: false`. To keep the 2.x behavior, set `exposeErrors: true`:
+   ```ts
+   new FormattedResponse({ exposeErrors: true })
+   ```
 
 ## Migration from 1.x
 

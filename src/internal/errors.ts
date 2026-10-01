@@ -5,14 +5,14 @@ export interface ParsedError {
   errors?: unknown
 }
 
-export function parseErrors (error: ErrorInput, debug: boolean): ParsedError {
+export function parseErrors (error: ErrorInput, debug: boolean, exposeErrors: boolean): ParsedError {
   const parsed: ParsedError = {}
   if (!error) return parsed
 
   if (error.message && debug) {
     parsed.error = error.message
   }
-  if ('errors' in error && error.errors !== undefined) {
+  if ((debug || exposeErrors) && 'errors' in error && error.errors !== undefined) {
     parsed.errors = error.errors
   }
   return parsed

@@ -17,6 +17,7 @@ describe('Configuration', () => {
 
     let expected = {
       debug: false,
+      exposeErrors: false,
       promise: true,
       types: { ok: 'success', ko: 'error', warn: 'warning', notFound: 'error' },
       get: { ok: '.GET.OK', ko: '.GET.KO', warn: '.GET.WARN' },
@@ -38,6 +39,7 @@ describe('Configuration', () => {
 
     expected = {
       debug: true,
+      exposeErrors: false,
       promise: true,
       types: { ok: 'success', ko: 'error', warn: 'warning', notFound: 'error' },
       get: { ok: '.GET.OK', ko: '.GET.KO', warn: '.GET.WARN' },

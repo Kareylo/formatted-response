@@ -52,7 +52,21 @@ describe('v1 regressions', () => {
   })
 
   it('preserves the quirky error payload placement', () => {
-    expect(new FormattedResponse({ promise: false }).error('E', { errors: [{ f: 'a' }] }))
+    expect(new FormattedResponse({ promise: false, exposeErrors: true }).error('E', { errors: [{ f: 'a' }] }))
+      .toEqual({ status: 400, message: 'E.KO', type: 'error', data: { errors: [{ f: 'a' }] } })
+  })
+
+  it('hides `errors` by default (debug: false, exposeErrors: false)', () => {
+    const err = Object.assign(new Error('boom'), { errors: [{ path: 'email', value: 'a@b.c' }] })
+    const R = new FormattedResponse({ promise: false })
+    expect(R.error('E', err)).toEqual({ status: 400, message: 'E.KO', type: 'error' })
+    expect(R.warning('E', err)).toEqual({ status: 403, message: 'E.WARN', type: 'warning' })
+    expect(R.notFound('E', err)).toEqual({ status: 404, message: 'E.ERROR', type: 'error' })
+  })
+
+  it('exposeErrors: true sends `errors` without exposing the message', () => {
+    const err = Object.assign(new Error('boom'), { errors: [{ f: 'a' }] })
+    expect(new FormattedResponse({ promise: false, exposeErrors: true }).error('E', err))
       .toEqual({ status: 400, message: 'E.KO', type: 'error', data: { errors: [{ f: 'a' }] } })
   })
 
