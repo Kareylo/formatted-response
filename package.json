@@ -1,6 +1,6 @@
 {
   "name": "formatted-response",
-  "version": "2.0.1",
+  "version": "2.1.0",
   "description": "Create formatted, consistently-shaped JSON responses — synchronously or as promises. Zero runtime dependencies.",
   "keywords": [
     "response",

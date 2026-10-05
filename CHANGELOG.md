@@ -2,7 +2,7 @@
 
 All notable changes to this project are documented here. The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/), and this project follows [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [2.1.0] - 05/10/2026
+## [2.1.0] - 2026-10-05
 
 ### Added
 
@@ -34,6 +34,6 @@ All notable changes to this project are documented here. The format is based on 
 
 Rewrite in TypeScript, published as dual ESM + CommonJS. Requires Node.js ≥ 20.19. See [Migration from 1.x](README.md#migration-from-1x) for the breaking changes.
 
-[2.1.0]: https://github.com/Kareylo/formatted-response/compare/v2.0.1...feature/http-status-codes
+[2.1.0]: https://github.com/Kareylo/formatted-response/compare/v2.0.1...v2.1.0
 [2.0.1]: https://github.com/Kareylo/formatted-response/compare/v2.0.0...v2.0.1
 [2.0.0]: https://github.com/Kareylo/formatted-response/releases/tag/v2.0.0
