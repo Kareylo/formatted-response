@@ -37,6 +37,13 @@ describe('built output', () => {
     expect(a).toEqual(b)
   })
 
+  it('status codes ship in both builds', () => {
+    const C = cjs as { HttpStatus: { CREATED: number }, new (c: unknown): { status: (c: number, m: string) => unknown } }
+    expect(C.HttpStatus.CREATED).toBe(201)
+    expect(esmDefault.HttpStatus.CREATED).toBe(201)
+    expect(new C({ promise: false }).status(201, 'X')).toEqual(new esmDefault({ promise: false }).created('X'))
+  })
+
   it('deprecated ./config subpath still resolves', () => {
     const config = require('../../dist/config.cjs')
     expect(config).toMatchObject({ promise: true, debug: false })
