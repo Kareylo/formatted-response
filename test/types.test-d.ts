@@ -1,6 +1,6 @@
 import { describe, expectTypeOf, it } from 'vitest'
 import FormattedResponse from '../src/index.js'
-import type { FormattedResponseOptions, TypedResponse } from '../src/types.js'
+import type { ErrorResponse, FormattedResponseOptions, HttpStatusCode, StatusResponse, TypedResponse } from '../src/types.js'
 
 describe('promise-flag inference', () => {
   it('defaults to Promise', () => {
@@ -41,5 +41,29 @@ describe('promise-flag inference', () => {
   it('get() never carries a type field', () => {
     const R = new FormattedResponse({ promise: false })
     expectTypeOf(R.get('M')).not.toHaveProperty('type')
+  })
+})
+
+describe('status methods', () => {
+  it('named success methods carry typed data', () => {
+    const R = new FormattedResponse({ promise: false })
+    expectTypeOf(R.created('M', { id: 1 })).toEqualTypeOf<TypedResponse & { data: { id: number } }>()
+    expectTypeOf(new FormattedResponse().noContent('M')).toEqualTypeOf<Promise<TypedResponse>>()
+  })
+
+  it('named error methods return ErrorResponse', () => {
+    const R = new FormattedResponse({ promise: false })
+    expectTypeOf(R.conflict('M', new Error('x'))).toEqualTypeOf<ErrorResponse>()
+    expectTypeOf(R.conflict('M', null, true)).toEqualTypeOf<Promise<ErrorResponse>>()
+  })
+
+  it('status() follows the promise flag', () => {
+    expectTypeOf(new FormattedResponse({ promise: false }).status(418, 'M')).toEqualTypeOf<StatusResponse>()
+    expectTypeOf(new FormattedResponse().status(418, 'M')).toEqualTypeOf<Promise<StatusResponse>>()
+  })
+
+  it('exposes the HttpStatus table as literal types', () => {
+    expectTypeOf(FormattedResponse.HttpStatus.CREATED).toEqualTypeOf<201>()
+    expectTypeOf<HttpStatusCode>().toExtend<number>()
   })
 })

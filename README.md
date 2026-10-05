@@ -135,6 +135,28 @@ response.response('X', { data: { a: 1 }, extra: 2 }, 't', 200)
 // => { status: 200, message: 'X', type: 't', data: { a: 1 }, extra: 2 }
 ```
 
+### Any HTTP status
+
+`status(code, message, data?, promise?)` sends any code from 100 to 599. Below 400 the third argument is `data`. From 400 up it's parsed as an error, exactly like `error()`, so `debug` and the `errors` rules above apply. The suffix is the code's name from the [IANA registry](https://www.iana.org/assignments/http-status-codes), and the `type` is `types.ok` below 400 and `types.ko` from 400 up:
+
+```ts
+response.status(201, 'USER', { id: 1 })
+// => { status: 201, message: 'USER.CREATED', type: 'success', data: { id: 1 } }
+
+response.status(FormattedResponse.HttpStatus.CONFLICT, 'USER', err)
+// => { status: 409, message: 'USER.CONFLICT', type: 'error' }
+```
+
+A code outside the registry (e.g. `299`) gets no suffix. A code outside 100–599 throws a `RangeError`.
+
+The common codes also have named methods, with the same arguments as `success()` or `error()`:
+
+| Takes `data` | Takes an error |
+|---|---|
+| `created` (201), `accepted` (202), `noContent` (204) | `badRequest` (400), `unauthorized` (401), `forbidden` (403), `conflict` (409), `unprocessableContent` (422), `tooManyRequests` (429), `internalServerError` (500), `serviceUnavailable` (503) |
+
+`FormattedResponse.HttpStatus` maps every registry name to its code (`HttpStatus.CREATED === 201`). `error()`, `warning()` and `notFound()` are unchanged: they still use `.KO`, `.WARN` and `.ERROR`.
+
 ## Configuration
 
 All defaults live in `FormattedResponse.defaults` (or the deprecated `formatted-response/config` subpath). Pass a partial override to the constructor — it's deep-merged over the defaults.
@@ -164,6 +186,7 @@ const response = new FormattedResponse({
 | `warn.{status,suffix}` | `403` / `.WARN` | Used by `warning()` |
 | `notFound.{status,suffix}` | `404` / `.ERROR` | Used by `notFound()` |
 | `dateFields` | `['created_at', 'created', 'updated_at', 'updated']` | Keys in `data` whose value, if a real `Date`, is converted to an ISO string |
+| `statuses` | *(none)* | Per-code overrides for `status()` and the named status methods: `{ 409: { suffix: '.TAKEN', type: 'warning' } }` |
 
 `get.ko`, `get.warn`, and `auth.*` are accepted in the config shape for backwards compatibility but are **not read by any method** — reserved for future use.
 
@@ -177,6 +200,9 @@ import type {
   FormattedResponseOptions,  // partial config accepted by the constructor
   BaseResponse, TypedResponse, ErrorResponse,  // response payload shapes
   ErrorInput,                // what error()/warning()/notFound() accept
+  StatusResponse,            // what status() returns
+  StatusOverride,            // one entry of config.statuses
+  HttpStatusCode, HttpStatusName,  // registry codes and names
   Resolved                   // the sync/promise resolution helper
 } from 'formatted-response/types'
 ```
@@ -194,6 +220,10 @@ import type {
 7. Only the documented entry points (`.`, `./config`, `./types`) are importable — deep paths like `formatted-response/src/response` no longer resolve.
 
 Everything else — the method signatures, the default config values, the message/status/type shapes — is unchanged.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 

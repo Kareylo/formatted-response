@@ -1,6 +1,18 @@
+import type { HttpStatus } from './http-status.js'
+
+export type { HttpStatusCode, HttpStatusName } from './http-status.js'
+
 export interface StatusConfig {
   status: number
   suffix: string
+}
+
+/** Per-code override for `status()` and the named status methods (`created`, `conflict`, ...). */
+export interface StatusOverride {
+  /** Appended to `message`. Defaults to `.` + the code's registry name, e.g. `.CREATED`. */
+  suffix?: string
+  /** The `type` field. Defaults to `types.ok` below 400, `types.ko` from 400 up. */
+  type?: string
 }
 
 export interface FormattedResponseConfig {
@@ -16,6 +28,8 @@ export interface FormattedResponseConfig {
   /** @deprecated Never read by the library. Kept so v1 configs keep type-checking. */
   auth: { error: StatusConfig, success: StatusConfig }
   dateFields: string[]
+  /** Optional, keyed by status code: `{ 409: { suffix: '.TAKEN' } }`. */
+  statuses?: Partial<Record<number, StatusOverride>>
 }
 
 export type DeepPartial<T>
@@ -66,6 +80,16 @@ export interface ErrorResponse extends TypedResponse {
   data?: { errors?: unknown }
 }
 
+/**
+ * What `status()` returns. Below 400 the third argument is treated as `data`;
+ * from 400 up it is treated as an error, exactly like `error()`.
+ */
+export interface StatusResponse extends TypedResponse {
+  data?: unknown
+  error?: string
+  errors?: unknown
+}
+
 export type ErrorInput = Error | { message?: string, errors?: unknown } | null | undefined
 
 // Kept type-only to avoid a runtime import cycle with formatted-response.ts.
@@ -78,6 +102,8 @@ export interface FormattedResponseConstructor {
   <P extends boolean = true> (config?: FormattedResponseOptions<P> | null): FormattedResponseClass<P>
   readonly prototype: FormattedResponseClass<boolean>
   readonly defaults: Readonly<FormattedResponseConfig>
+  /** Status codes by registry name: `FormattedResponse.HttpStatus.CREATED === 201`. */
+  readonly HttpStatus: typeof HttpStatus
   sync (config?: FormattedResponseOptions | null): FormattedResponseClass<false>
   async (config?: FormattedResponseOptions | null): FormattedResponseClass<true>
 }
