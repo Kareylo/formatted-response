@@ -185,11 +185,14 @@ import type {
 
 **Breaking changes in 3.0.0:**
 
-1. **Node ≥ 22 is required.** Node 20 reached end-of-life in April 2026.
-2. **An error's `errors` property is no longer sent by default.** In 2.x it was always copied into the response, even with `debug: false`. To keep the 2.x behavior, set `exposeErrors: true`:
+1. **Node ≥ 22.0.0 is required.** Node 20 reached end-of-life in April 2026.
+2. **An error's `errors` property is no longer sent by default.** In 2.x it was always copied into the response, even with `debug: false`. With `debug: true` it is still sent (top-level), so debug setups see no change. To keep the 2.x behavior everywhere, set `exposeErrors: true`:
    ```ts
    new FormattedResponse({ exposeErrors: true })
    ```
+3. **TypeScript: `FormattedResponseConfig` has a new required key, `exposeErrors`.** Code that types a full config object as `FormattedResponseConfig` must add it. Constructor input (`FormattedResponseOptions`) is a deep partial and is unaffected.
+
+Everything else — the method signatures, the response shapes, the other default config values — is unchanged.
 
 ## Migration from 1.x
 
@@ -204,6 +207,10 @@ import type {
 7. Only the documented entry points (`.`, `./config`, `./types`) are importable — deep paths like `formatted-response/src/response` no longer resolve.
 
 Everything else — the method signatures, the default config values, the message/status/type shapes — is unchanged.
+
+## Changelog
+
+See [CHANGELOG.md](CHANGELOG.md).
 
 ## Contributing
 
