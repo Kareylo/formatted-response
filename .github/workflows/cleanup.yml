@@ -1,0 +1,67 @@
+name: Cleanup
+
+# Keeps the repo under the free Actions storage quota (0.5 GB): caches written
+# by a pull request ref are useless once it is closed, and caches nobody has
+# restored recently are just dead weight. No third-party actions — only the
+# preinstalled `gh` CLI.
+on:
+  pull_request:
+    types: [closed]
+  schedule:
+    - cron: '0 4 * * 1'
+  workflow_dispatch:
+    inputs:
+      max_age_days:
+        description: Delete caches not accessed for this many days (0 = all)
+        type: number
+        default: 7
+
+permissions:
+  contents: read
+
+concurrency:
+  group: cleanup-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pr-caches:
+    name: Delete closed PR caches
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      REF: refs/pull/${{ github.event.pull_request.number }}/merge
+    steps:
+      - name: Delete caches for ${{ env.REF }}
+        run: |
+          set -euo pipefail
+          gh cache list --ref "$REF" --limit 100 --json id --jq '.[].id' |
+            while read -r id; do
+              echo "Deleting cache $id"
+              gh cache delete "$id"
+            done
+
+  stale-caches:
+    name: Delete stale caches
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    permissions:
+      actions: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      GH_REPO: ${{ github.repository }}
+      MAX_AGE_DAYS: ${{ inputs.max_age_days || 7 }}
+    steps:
+      - name: Delete caches not accessed in ${{ env.MAX_AGE_DAYS }} days
+        run: |
+          set -euo pipefail
+          CUTOFF="$(date -u -d "$MAX_AGE_DAYS days ago" +%Y-%m-%dT%H:%M:%SZ)"
+          gh cache list --limit 100 --json id,lastAccessedAt \
+            --jq ".[] | select(.lastAccessedAt < \"$CUTOFF\") | .id" |
+            while read -r id; do
+              echo "Deleting cache $id"
+              gh cache delete "$id"
+            done
